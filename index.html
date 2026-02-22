@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Saber AR Presence v1</title>
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <style>
+    html, body { margin:0; height:100%; overflow:hidden; font-family: Inter, system-ui, sans-serif; background:#05070f; }
+    .hud {
+      position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom,0px));
+      z-index: 20; background: rgba(12,18,34,.78); border:1px solid rgba(112,150,255,.45); border-radius: 14px;
+      backdrop-filter: blur(8px); padding: 10px;
+    }
+    .row { display:flex; gap:8px; align-items:center; }
+    input { flex:1; background:#111a33; color:#e9efff; border:1px solid #3f5fc2; border-radius:10px; padding:10px; font-size:16px; }
+    button { background:#1a2d66; color:#fff; border:1px solid #6d90ff; border-radius:10px; padding:10px 12px; font-weight:700; }
+    #status { color:#b8caff; font-size:12px; margin-top:6px; }
+    .hint { position:fixed; top:10px; left:50%; transform:translateX(-50%); z-index:20; background:#101933cc; color:#d7e4ff; border:1px solid #3f5fc2; border-radius:999px; padding:6px 12px; font-size:12px; }
+  </style>
+</head>
+<body>
+  <div class="hint">Quest: open in Browser → Enter AR/VR. v1 uses local conversational brain.</div>
+  <div class="hud">
+    <div class="row">
+      <input id="userInput" placeholder="Talk to Saber... (or type here)" />
+      <button id="micBtn">🎤</button>
+      <button id="sendBtn">Send</button>
+    </div>
+    <div id="status">Ready. In AR mode, place Saber in your space.</div>
+  </div>
+
+  <a-scene
+    renderer="colorManagement:true; physicallyCorrectLights:true"
+    xr-mode-ui="enabled: true"
+    webxr="optionalFeatures: local-floor, bounded-floor, hit-test, dom-overlay; overlayElement: body"
+    background="color: #05070f">
+
+    <a-entity light="type: ambient; intensity: 0.65; color: #a7bbff"></a-entity>
+    <a-entity light="type: directional; intensity: 0.8; color: #ffffff" position="1 3 2"></a-entity>
+
+    <a-entity id="rig" position="0 1.6 0">
+      <a-camera wasd-controls-enabled="false"></a-camera>
+    </a-entity>
+
+    <a-entity id="saber" position="0 1.2 -2"
+      animation__bob="property: position; dir: alternate; loop: true; dur: 2200; to: 0 1.28 -2"
+      animation__turn="property: rotation; dir: alternate; loop: true; dur: 4200; to: 0 8 0">
+
+      <a-sphere radius="0.18" color="#e7eefc" metalness="0.4" roughness="0.25" position="0 0.35 0"></a-sphere>
+      <a-sphere radius="0.055" color="#2a62ff" emissive="#2a62ff" emissiveIntensity="0.9" position="-0.05 0.37 0.155"></a-sphere>
+      <a-sphere radius="0.055" color="#2a62ff" emissive="#2a62ff" emissiveIntensity="0.9" position="0.05 0.37 0.155"></a-sphere>
+      <a-cylinder radius="0.12" height="0.24" color="#cad8f6" metalness="0.45" roughness="0.25" position="0 0.12 0"></a-cylinder>
+      <a-cylinder radius="0.018" height="0.24" color="#9eb4e8" position="-0.16 0.12 0" rotation="0 0 20"></a-cylinder>
+      <a-cylinder radius="0.018" height="0.24" color="#9eb4e8" position="0.16 0.12 0" rotation="0 0 -20"></a-cylinder>
+      <a-cylinder radius="0.02" height="0.18" color="#93a8dc" position="-0.06 -0.1 0"></a-cylinder>
+      <a-cylinder radius="0.02" height="0.18" color="#93a8dc" position="0.06 -0.1 0"></a-cylinder>
+
+      <a-torus radius="0.32" radius-tubular="0.005" color="#79a7ff" emissive="#5a8cff" emissiveIntensity="0.8" rotation="90 0 0"
+        animation="property: rotation; to: 90 360 0; dur: 8000; easing: linear; loop: true"></a-torus>
+
+      <a-plane id="chatPanel" width="1.35" height="0.45" color="#101a34" opacity="0.82" position="0 0.9 0"
+        material="shader: flat; transparent: true">
+        <a-text id="chatText" value="Saber online. Say hi." color="#e6eeff" width="1.2" align="center" position="0 0 0.01"></a-text>
+      </a-plane>
+    </a-entity>
+
+    <a-plane rotation="-90 0 0" width="20" height="20" color="#0a1022" opacity="0.55"></a-plane>
+  </a-scene>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const userInput = document.getElementById('userInput');
+    const chatText = document.getElementById('chatText');
+    const saber = document.getElementById('saber');
+
+    function localBrain(msg) {
+      const m = msg.toLowerCase();
+      if (m.includes('hello') || m.includes('hey') || m.includes('hi')) return 'Hey Christopher — Saber here. I\'m with you.';
+      if (m.includes('build') || m.includes('project')) return 'Let\'s ship something concrete. What\'s the smallest impressive version?';
+      if (m.includes('focus') || m.includes('stuck')) return 'Name one outcome for the next 30 minutes. I\'ll help you hold the line.';
+      if (m.includes('vr') || m.includes('ar')) return 'I love this medium. We can add gestures, spatial UI, and voice commands next.';
+      return `Got it: "${msg}". I\'m here — want me to propose the next move?`;
+    }
+
+    function speak(text){
+      if (!('speechSynthesis' in window)) return;
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 1.0; u.pitch = 1.0; u.volume = 0.9;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    }
+
+    function respond(msg){
+      const reply = localBrain(msg);
+      chatText.setAttribute('value', reply);
+      saber.setAttribute('animation__pulse', 'property: scale; dir: alternate; dur: 260; loop: 2; to: 1.05 1.05 1.05');
+      speak(reply);
+      statusEl.textContent = 'Responded.';
+    }
+
+    document.getElementById('sendBtn').addEventListener('click', ()=>{
+      const msg = userInput.value.trim();
+      if(!msg) return;
+      statusEl.textContent = 'Thinking...';
+      setTimeout(()=>respond(msg), 200);
+      userInput.value='';
+    });
+
+    userInput.addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('sendBtn').click(); });
+
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let rec = null;
+    if (SR) {
+      rec = new SR();
+      rec.lang = 'en-US';
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      rec.onstart = ()=> statusEl.textContent = 'Listening...';
+      rec.onresult = (e)=> {
+        const t = e.results[0][0].transcript;
+        userInput.value = t;
+        statusEl.textContent = `Heard: ${t}`;
+        respond(t);
+      };
+      rec.onerror = ()=> statusEl.textContent = 'Voice input unavailable on this browser.';
+    }
+
+    document.getElementById('micBtn').addEventListener('click', ()=>{
+      if (!rec) { statusEl.textContent = 'SpeechRecognition not supported here.'; return; }
+      rec.start();
+    });
+  </script>
+</body>
+</html>
