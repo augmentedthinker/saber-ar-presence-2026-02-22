@@ -27,7 +27,7 @@
       <button id="micBtn">🎤</button>
       <button id="sendBtn">Send</button>
     </div>
-    <div id="status">Ready. In AR mode, place Saber in your space.</div>
+    <div id="status">Ready. Loading upgraded robot model...</div>
   </div>
 
   <a-scene
@@ -36,6 +36,10 @@
     webxr="optionalFeatures: local-floor, bounded-floor, hit-test, dom-overlay; overlayElement: body"
     background="color: #05070f">
 
+    <a-assets>
+      <a-asset-item id="robotModel" src="https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/gltf/RobotExpressive/RobotExpressive.glb"></a-asset-item>
+    </a-assets>
+
     <a-entity light="type: ambient; intensity: 0.65; color: #a7bbff"></a-entity>
     <a-entity light="type: directional; intensity: 0.8; color: #ffffff" position="1 3 2"></a-entity>
 
@@ -43,27 +47,28 @@
       <a-camera wasd-controls-enabled="false"></a-camera>
     </a-entity>
 
-    <a-entity id="saber" position="0 1.2 -2"
-      animation__bob="property: position; dir: alternate; loop: true; dur: 2200; to: 0 1.28 -2"
+    <a-entity id="saber" position="0 0 -2.1"
+      animation__bob="property: position; dir: alternate; loop: true; dur: 2200; to: 0 0.07 -2.1"
       animation__turn="property: rotation; dir: alternate; loop: true; dur: 4200; to: 0 8 0">
 
-      <a-sphere radius="0.18" color="#e7eefc" metalness="0.4" roughness="0.25" position="0 0.35 0"></a-sphere>
-      <a-sphere radius="0.055" color="#2a62ff" emissive="#2a62ff" emissiveIntensity="0.9" position="-0.05 0.37 0.155"></a-sphere>
-      <a-sphere radius="0.055" color="#2a62ff" emissive="#2a62ff" emissiveIntensity="0.9" position="0.05 0.37 0.155"></a-sphere>
-      <a-cylinder radius="0.12" height="0.24" color="#cad8f6" metalness="0.45" roughness="0.25" position="0 0.12 0"></a-cylinder>
-      <a-cylinder radius="0.018" height="0.24" color="#9eb4e8" position="-0.16 0.12 0" rotation="0 0 20"></a-cylinder>
-      <a-cylinder radius="0.018" height="0.24" color="#9eb4e8" position="0.16 0.12 0" rotation="0 0 -20"></a-cylinder>
-      <a-cylinder radius="0.02" height="0.18" color="#93a8dc" position="-0.06 -0.1 0"></a-cylinder>
-      <a-cylinder radius="0.02" height="0.18" color="#93a8dc" position="0.06 -0.1 0"></a-cylinder>
+      <a-entity gltf-model="#robotModel" scale="0.28 0.28 0.28" position="0 0 0" rotation="0 180 0"
+        animation-mixer="clip: Idle; loop: repeat"></a-entity>
 
-      <a-torus radius="0.32" radius-tubular="0.005" color="#79a7ff" emissive="#5a8cff" emissiveIntensity="0.8" rotation="90 0 0"
-        animation="property: rotation; to: 90 360 0; dur: 8000; easing: linear; loop: true"></a-torus>
+      <a-cylinder radius="0.28" height="0.03" color="#20305f" position="0 -0.02 0"
+        material="emissive:#2d4ca0; emissiveIntensity:0.4; metalness:0.5; roughness:0.3"></a-cylinder>
 
-      <a-plane id="chatPanel" width="1.35" height="0.45" color="#101a34" opacity="0.82" position="0 0.9 0"
+      <a-ring radius-inner="0.33" radius-outer="0.36" rotation="-90 0 0" position="0 -0.018 0"
+        color="#6ea1ff" material="emissive:#4f83ff; emissiveIntensity:0.9; transparent:true; opacity:.85"
+        animation="property: rotation; to: -90 360 0; loop: true; dur: 7000; easing: linear"></a-ring>
+
+      <a-plane id="chatPanel" width="1.6" height="0.5" color="#101a34" opacity="0.82" position="0 1.25 0"
         material="shader: flat; transparent: true">
-        <a-text id="chatText" value="Saber online. Say hi." color="#e6eeff" width="1.2" align="center" position="0 0 0.01"></a-text>
+        <a-text id="chatText" value="Saber online. Say hi." color="#e6eeff" width="1.45" align="center" position="0 0 0.01"></a-text>
       </a-plane>
     </a-entity>
+
+    <a-entity light="type: point; intensity: 1.1; distance: 6; color: #77a7ff" position="0 1.2 -2.1"></a-entity>
+
 
     <a-plane rotation="-90 0 0" width="20" height="20" color="#0a1022" opacity="0.55"></a-plane>
   </a-scene>
@@ -126,7 +131,13 @@
       rec.onerror = ()=> statusEl.textContent = 'Voice input unavailable on this browser.';
     }
 
-    document.getElementById('micBtn').addEventListener('click', ()=>{
+    
+    const modelEl = document.querySelector('[gltf-model]');
+    if (modelEl) {
+      modelEl.addEventListener('model-loaded', ()=> statusEl.textContent = 'Model loaded. Say hello to Saber.');
+      modelEl.addEventListener('model-error', ()=> statusEl.textContent = 'Model failed to load. Check connection and reload.');
+    }
+document.getElementById('micBtn').addEventListener('click', ()=>{
       if (!rec) { statusEl.textContent = 'SpeechRecognition not supported here.'; return; }
       rec.start();
     });
