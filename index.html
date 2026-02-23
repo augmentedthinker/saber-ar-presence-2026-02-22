@@ -259,11 +259,21 @@
       }
     });
 
+    function inferModeFromIntent(msg){
+      const m = msg.toLowerCase();
+      if (/(stuck|reflect|why|meaning|pattern|journal|think)/.test(m)) return 3; // reflective
+      if (/(build|ship|prototype|implement|code|make)/.test(m)) return 2; // builder
+      if (/(help|guide|plan|next step|clarify|move|walk)/.test(m)) return 1; // guide
+      return 0; // idle
+    }
+
     function localBrain(msg) {
       const m = msg.toLowerCase();
+      setMode(inferModeFromIntent(msg));
       if (m.includes('hello') || m.includes('hey') || m.includes('hi')) return 'Hey Christopher — Saber here in the workshop.';
-      if (m.includes('move') || m.includes('walk')) { setMode(1); return 'Guide mode: point on the floor and click trigger — I will move there.'; }
-      if (m.includes('build') || m.includes('project')) { setMode(2); return 'Builder mode active. Let\'s prototype something useful.'; }
+      if (m.includes('move') || m.includes('walk')) return 'Guide mode: point on the floor and click trigger — I will move there.';
+      if (m.includes('build') || m.includes('project')) return 'Builder mode active. Let\'s prototype something useful.';
+      if (m.includes('reflect') || m.includes('pattern')) return 'Reflective mode active. I can summarize what is really happening and what matters next.';
       return `Got it: "${msg}".`;
     }
 
