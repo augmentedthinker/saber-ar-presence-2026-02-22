@@ -55,44 +55,50 @@
     <a-plane id="navPlane" class="clickable" rotation="-90 0 0" position="0 0 0" width="16" height="16" color="#4e5562" material="roughness:0.95; metalness:0.1"></a-plane>
 
     <!-- windows -->
-    <!-- Recessed windows: ~0.16m (~6in) inset for depth -->
-    <a-plane position="-4.6 2.6 -6.10" width="2.64" height="1.64" src="#space1" material="shader: flat; side: double; emissive: #ffffff; emissiveIntensity: 0.2"
-      animation="property: material.emissiveIntensity; dir: alternate; loop: true; dur: 7000; to: 0.35"></a-plane>
-    <a-plane position="0 2.6 -6.10" width="2.64" height="1.64" src="#space2" material="shader: flat; side: double; emissive: #ffffff; emissiveIntensity: 0.2"
-      animation="property: material.emissiveIntensity; dir: alternate; loop: true; dur: 8200; to: 0.34"></a-plane>
-    <a-plane position="4.6 2.6 -6.10" width="2.64" height="1.64" src="#space3" material="shader: flat; side: double; emissive: #ffffff; emissiveIntensity: 0.2"
-      animation="property: material.emissiveIntensity; dir: alternate; loop: true; dur: 7600; to: 0.33"></a-plane>
+    <!-- Recessed windows: set slightly in front of wall back-face to avoid black clipping -->
+    <a-plane position="-4.6 2.6 -5.99" width="2.64" height="1.64" src="#space1" material="shader: flat; side: double; emissive: #ffffff; emissiveIntensity: 0.26"
+      animation="property: material.emissiveIntensity; dir: alternate; loop: true; dur: 7000; to: 0.42"></a-plane>
+    <a-plane position="0 2.6 -5.99" width="2.64" height="1.64" src="#space2" material="shader: flat; side: double; emissive: #ffffff; emissiveIntensity: 0.26"
+      animation="property: material.emissiveIntensity; dir: alternate; loop: true; dur: 8200; to: 0.40"></a-plane>
+    <a-plane position="4.6 2.6 -5.99" width="2.64" height="1.64" src="#space3" material="shader: flat; side: double; emissive: #ffffff; emissiveIntensity: 0.26"
+      animation="property: material.emissiveIntensity; dir: alternate; loop: true; dur: 7600; to: 0.39"></a-plane>
 
     <!-- Outer trim at wall surface -->
-    <a-box position="-4.6 2.6 -5.95" width="2.95" height="1.95" depth="0.03" color="#2f3644"></a-box>
-    <a-box position="0 2.6 -5.95" width="2.95" height="1.95" depth="0.03" color="#2f3644"></a-box>
-    <a-box position="4.6 2.6 -5.95" width="2.95" height="1.95" depth="0.03" color="#2f3644"></a-box>
+    <a-box position="-4.6 2.6 -5.92" width="2.95" height="1.95" depth="0.03" color="#2f3644"></a-box>
+    <a-box position="0 2.6 -5.92" width="2.95" height="1.95" depth="0.03" color="#2f3644"></a-box>
+    <a-box position="4.6 2.6 -5.92" width="2.95" height="1.95" depth="0.03" color="#2f3644"></a-box>
 
     <!-- Recess side walls (jambs) -->
-    <a-box position="-5.95 2.6 -6.04" width="0.10" height="1.80" depth="0.18" color="#555e6c"></a-box>
-    <a-box position="-3.25 2.6 -6.04" width="0.10" height="1.80" depth="0.18" color="#555e6c"></a-box>
-    <a-box position="-4.6 3.47 -6.04" width="2.70" height="0.10" depth="0.18" color="#5f6877"></a-box>
-    <a-box position="-4.6 1.73 -6.04" width="2.70" height="0.10" depth="0.18" color="#5f6877"></a-box>
+    <a-box position="-5.95 2.6 -5.96" width="0.10" height="1.80" depth="0.10" color="#555e6c"></a-box>
+    <a-box position="-3.25 2.6 -5.96" width="0.10" height="1.80" depth="0.10" color="#555e6c"></a-box>
+    <a-box position="-4.6 3.47 -5.96" width="2.70" height="0.10" depth="0.10" color="#5f6877"></a-box>
+    <a-box position="-4.6 1.73 -5.96" width="2.70" height="0.10" depth="0.10" color="#5f6877"></a-box>
 
-    <a-box position="-1.35 2.6 -6.04" width="0.10" height="1.80" depth="0.18" color="#555e6c"></a-box>
-    <a-box position="1.35 2.6 -6.04" width="0.10" height="1.80" depth="0.18" color="#555e6c"></a-box>
-    <a-box position="0 3.47 -6.04" width="2.70" height="0.10" depth="0.18" color="#5f6877"></a-box>
-    <a-box position="0 1.73 -6.04" width="2.70" height="0.10" depth="0.18" color="#5f6877"></a-box>
+    <a-box position="-1.35 2.6 -5.96" width="0.10" height="1.80" depth="0.10" color="#555e6c"></a-box>
+    <a-box position="1.35 2.6 -5.96" width="0.10" height="1.80" depth="0.10" color="#555e6c"></a-box>
+    <a-box position="0 3.47 -5.96" width="2.70" height="0.10" depth="0.10" color="#5f6877"></a-box>
+    <a-box position="0 1.73 -5.96" width="2.70" height="0.10" depth="0.10" color="#5f6877"></a-box>
 
-    <a-box position="3.25 2.6 -6.04" width="0.10" height="1.80" depth="0.18" color="#555e6c"></a-box>
-    <a-box position="5.95 2.6 -6.04" width="0.10" height="1.80" depth="0.18" color="#555e6c"></a-box>
-    <a-box position="4.6 3.47 -6.04" width="2.70" height="0.10" depth="0.18" color="#5f6877"></a-box>
-    <a-box position="4.6 1.73 -6.04" width="2.70" height="0.10" depth="0.18" color="#5f6877"></a-box>
+    <a-box position="3.25 2.6 -5.96" width="0.10" height="1.80" depth="0.10" color="#555e6c"></a-box>
+    <a-box position="5.95 2.6 -5.96" width="0.10" height="1.80" depth="0.10" color="#555e6c"></a-box>
+    <a-box position="4.6 3.47 -5.96" width="2.70" height="0.10" depth="0.10" color="#5f6877"></a-box>
+    <a-box position="4.6 1.73 -5.96" width="2.70" height="0.10" depth="0.10" color="#5f6877"></a-box>
 
     <!-- Window mullions set inside the recess -->
-    <a-box position="-4.6 2.6 -6.11" width="0.06" height="1.64" depth="0.02" color="#4a556b"></a-box>
-    <a-box position="-4.6 2.6 -6.11" width="2.64" height="0.06" depth="0.02" color="#4a556b"></a-box>
+    <a-box position="-4.6 2.6 -5.985" width="0.06" height="1.64" depth="0.02" color="#4a556b"></a-box>
+    <a-box position="-4.6 2.6 -5.985" width="2.64" height="0.06" depth="0.02" color="#4a556b"></a-box>
 
-    <a-box position="0 2.6 -6.11" width="0.06" height="1.64" depth="0.02" color="#4a556b"></a-box>
-    <a-box position="0 2.6 -6.11" width="2.64" height="0.06" depth="0.02" color="#4a556b"></a-box>
+    <a-box position="0 2.6 -5.985" width="0.06" height="1.64" depth="0.02" color="#4a556b"></a-box>
+    <a-box position="0 2.6 -5.985" width="2.64" height="0.06" depth="0.02" color="#4a556b"></a-box>
 
-    <a-box position="4.6 2.6 -6.11" width="0.06" height="1.64" depth="0.02" color="#4a556b"></a-box>
-    <a-box position="4.6 2.6 -6.11" width="2.64" height="0.06" depth="0.02" color="#4a556b"></a-box>
+    <a-box position="4.6 2.6 -5.985" width="0.06" height="1.64" depth="0.02" color="#4a556b"></a-box>
+    <a-box position="4.6 2.6 -5.985" width="2.64" height="0.06" depth="0.02" color="#4a556b"></a-box>
+
+    <!-- Front wall so rear half of room is not black -->
+    <a-box position="0 3 10" depth="0.1" height="6" width="16" color="#676f7e"></a-box>
+    <a-plane position="-3.9 2.6 9.95" width="2.5" height="1.5" src="#space2" rotation="0 180 0" material="shader: flat; side: double; emissive:#ffffff; emissiveIntensity:0.22"></a-plane>
+    <a-plane position="0 2.6 9.95" width="2.5" height="1.5" src="#space1" rotation="0 180 0" material="shader: flat; side: double; emissive:#ffffff; emissiveIntensity:0.22"></a-plane>
+    <a-plane position="3.9 2.6 9.95" width="2.5" height="1.5" src="#space3" rotation="0 180 0" material="shader: flat; side: double; emissive:#ffffff; emissiveIntensity:0.22"></a-plane>
 
     <!-- benches -->
     <a-box position="-5.2 0.45 -3.6" width="3.1" height="0.12" depth="0.9" color="#474d58"></a-box>
@@ -126,22 +132,45 @@
     const navPlane = document.getElementById('navPlane');
     const targetMarker = document.getElementById('targetMarker');
 
+    // Robot proximity beeps (louder when close)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function robotBeep(){
+      const cam = document.querySelector('#rig').object3D.position;
+      const rb = saber.object3D.position;
+      const dx = cam.x - rb.x, dz = cam.z - rb.z;
+      const dist = Math.max(0.3, Math.hypot(dx, dz));
+      const vol = Math.max(0.01, Math.min(0.16, 0.22 / (dist * dist)));
+      const freq = 640 + Math.random()*460;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = Math.random() > 0.5 ? 'square' : 'triangle';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(vol, audioCtx.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.14);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+    }
+
     AFRAME.registerComponent('saber-move', {
       init() {
         this.target = null;
         this.speed = 0.95;
-        this.roomHalf = 7.5;
+        this.roomHalfX = 7.5;
+        this.roomMinZ = -7.5;
+        this.roomMaxZ = 9.5;
         // axis-aligned blockers (x,z center + half extents)
         this.blockers = [
           {x:-5.2, z:-3.6, hx:1.65, hz:0.55},
           {x: 5.2, z:-3.6, hx:1.65, hz:0.55},
           {x: 0.0, z:-6.0, hx:7.8, hz:0.20}, // back wall collision buffer
+          {x: 0.0, z:10.0, hx:7.8, hz:0.25}, // front wall collision buffer
           {x:-8.0, z: 2.0, hx:0.20, hz:7.8}, // left wall
           {x: 8.0, z: 2.0, hx:0.20, hz:7.8}  // right wall
         ];
       },
       isBlocked(x,z){
-        if (x < -this.roomHalf || x > this.roomHalf || z < -this.roomHalf || z > this.roomHalf) return true;
+        if (x < -this.roomHalfX || x > this.roomHalfX || z < this.roomMinZ || z > this.roomMaxZ) return true;
         for (const b of this.blockers){
           if (Math.abs(x - b.x) <= b.hx && Math.abs(z - b.z) <= b.hz) return true;
         }
@@ -197,7 +226,8 @@
       statusEl.textContent = reply;
     }
 
-    navPlane.addEventListener('click', (e) => {
+    navPlane.addEventListener('click', async (e) => {
+      if (audioCtx.state === 'suspended') { try { await audioCtx.resume(); } catch {} }
       if (!e.detail || !e.detail.intersection) return;
       const p = e.detail.intersection.point;
       const mover = saber.components['saber-move'];
@@ -235,6 +265,11 @@
       modelEl.addEventListener('model-loaded', ()=> statusEl.textContent = 'Model + lab loaded. Point at floor to move Saber.');
       modelEl.addEventListener('model-error', ()=> statusEl.textContent = 'Model failed to load. Check connection and reload.');
     }
+
+    // ambient digital motion beeps
+    setInterval(() => {
+      if (audioCtx.state === 'running') robotBeep();
+    }, 1200);
   </script>
 </body>
 </html>
