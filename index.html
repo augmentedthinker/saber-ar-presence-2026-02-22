@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Saber AR Presence v1</title>
+  <title>Saber XR Presence — Lab Pass</title>
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
   <style>
     html, body { margin:0; height:100%; overflow:hidden; font-family: Inter, system-ui, sans-serif; background:#05070f; }
@@ -16,60 +16,80 @@
   </style>
 </head>
 <body>
-  <div class="hint">Quest: trigger/right-click pointer to set target. Saber walks to where you point.</div>
+  <div class="hint">Point with controller laser at floor to move Saber.</div>
   <div class="hud">
     <div class="row">
       <input id="userInput" placeholder="Talk to Saber... (or type here)" />
       <button id="micBtn">🎤</button>
       <button id="sendBtn">Send</button>
     </div>
-    <div id="status">Loading model + controllers...</div>
+    <div id="status">Loading lab environment...</div>
   </div>
 
-  <a-scene renderer="colorManagement:true; physicallyCorrectLights:true; alpha:true" xr-mode-ui="enabled: true"
+  <a-scene renderer="colorManagement:true; physicallyCorrectLights:true" xr-mode-ui="enabled: true"
            webxr="optionalFeatures: local-floor, bounded-floor, hit-test, dom-overlay; overlayElement: body"
-           background="transparent: true">
+           background="color: #0b0f18">
 
     <a-assets>
       <a-asset-item id="robotModel" src="https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/gltf/RobotExpressive/RobotExpressive.glb"></a-asset-item>
     </a-assets>
 
-    <a-entity light="type: ambient; intensity: 0.65; color: #a7bbff"></a-entity>
-    <a-entity light="type: directional; intensity: 0.8; color: #ffffff" position="1 3 2"></a-entity>
+    <a-entity light="type: ambient; intensity: 0.55; color: #aeb8d8"></a-entity>
+    <a-entity light="type: directional; intensity: 0.9; color: #ffffff" position="2 4 1"></a-entity>
 
-    <a-entity id="rig" position="0 1.6 0">
+    <a-entity id="rig" position="0 1.6 2.2">
       <a-camera wasd-controls-enabled="false"></a-camera>
-
       <a-entity id="leftHand" laser-controls="hand: left" raycaster="objects: .clickable" line="color: #7fc0ff; opacity: 0.9"></a-entity>
       <a-entity id="rightHand" laser-controls="hand: right" raycaster="objects: .clickable" line="color: #d2a3ff; opacity: 0.9"></a-entity>
     </a-entity>
 
-    <a-plane id="navPlane" class="clickable" rotation="-90 0 0" position="0 0 -2" width="40" height="40" color="#0b1230" opacity="0.18"></a-plane>
+    <!-- LAB ROOM -->
+    <a-box position="0 1.5 -3" depth="0.1" height="3" width="8" color="#6d7482"></a-box>
+    <a-box position="-4 1.5 1" depth="8" height="3" width="0.1" color="#636a78"></a-box>
+    <a-box position="4 1.5 1" depth="8" height="3" width="0.1" color="#636a78"></a-box>
+    <a-box position="0 3 1" depth="8" height="0.1" width="8" color="#818a98"></a-box>
 
-    <a-entity id="saber" position="0 0 -2.1" saber-move>
+    <a-plane id="navPlane" class="clickable" rotation="-90 0 0" position="0 0 0" width="8" height="8" color="#4e5562" material="roughness:0.95; metalness:0.1"></a-plane>
+
+    <!-- windows -->
+    <a-plane position="-2.3 1.8 -2.94" width="1.6" height="1" color="#91b3d8" opacity="0.45" material="transparent:true"></a-plane>
+    <a-plane position="0 1.8 -2.94" width="1.6" height="1" color="#91b3d8" opacity="0.45" material="transparent:true"></a-plane>
+    <a-plane position="2.3 1.8 -2.94" width="1.6" height="1" color="#91b3d8" opacity="0.45" material="transparent:true"></a-plane>
+
+    <!-- benches -->
+    <a-box position="-2.7 0.45 -1.8" width="1.7" height="0.12" depth="0.6" color="#474d58"></a-box>
+    <a-box position="-2.7 0.2 -1.8" width="1.6" height="0.35" depth="0.5" color="#343a45"></a-box>
+
+    <a-box position="2.7 0.45 -1.8" width="1.7" height="0.12" depth="0.6" color="#474d58"></a-box>
+    <a-box position="2.7 0.2 -1.8" width="1.6" height="0.35" depth="0.5" color="#343a45"></a-box>
+
+    <!-- simple lab props -->
+    <a-cylinder position="-2.35 0.62 -1.85" radius="0.06" height="0.18" color="#8ac4ff" opacity="0.75" material="transparent:true"></a-cylinder>
+    <a-cylinder position="-2.75 0.60 -1.7" radius="0.04" height="0.14" color="#a8ffda" opacity="0.75" material="transparent:true"></a-cylinder>
+    <a-torus position="2.4 0.6 -1.8" radius="0.12" radius-tubular="0.03" color="#9aa6ba" rotation="90 0 0"></a-torus>
+    <a-cylinder position="2.95 0.58 -1.9" radius="0.03" height="0.11" color="#7f8ea8"></a-cylinder>
+
+    <!-- target marker -->
+    <a-cylinder id="targetMarker" position="0 0.01 0" radius="0.13" height="0.01" color="#8db8ff" visible="false"></a-cylinder>
+
+    <a-entity id="saber" position="0 0 -1.2" saber-move>
       <a-entity gltf-model="#robotModel" scale="0.28 0.28 0.28" position="0 0 0" rotation="0 0 0" animation-mixer="clip: Idle; loop: repeat"></a-entity>
       <a-cylinder radius="0.28" height="0.03" color="#20305f" position="0 -0.02 0" material="emissive:#2d4ca0; emissiveIntensity:0.4; metalness:0.5; roughness:0.3"></a-cylinder>
       <a-ring radius-inner="0.33" radius-outer="0.36" rotation="-90 0 0" position="0 -0.018 0" color="#6ea1ff" material="emissive:#4f83ff; emissiveIntensity:0.9; transparent:true; opacity:.85" animation="property: rotation; to: -90 360 0; loop: true; dur: 7000; easing: linear"></a-ring>
-      <a-plane id="chatPanel" width="1.6" height="0.5" color="#101a34" opacity="0.82" position="0 1.25 0" material="shader: flat; transparent: true">
-        <a-text id="chatText" value="Saber online. Point to move me." color="#e6eeff" width="1.45" align="center" position="0 0 0.01"></a-text>
-      </a-plane>
     </a-entity>
 
-    <a-entity light="type: point; intensity: 1.1; distance: 6; color: #77a7ff" position="0 1.2 -2.1"></a-entity>
+    <a-entity light="type: point; intensity: 1.15; distance: 6; color: #77a7ff" position="0 1.2 -1.2"></a-entity>
   </a-scene>
 
   <script>
     const statusEl = document.getElementById('status');
     const userInput = document.getElementById('userInput');
-    const chatText = document.getElementById('chatText');
     const saber = document.getElementById('saber');
     const navPlane = document.getElementById('navPlane');
+    const targetMarker = document.getElementById('targetMarker');
 
     AFRAME.registerComponent('saber-move', {
-      init() {
-        this.target = null;
-        this.speed = 0.95; // meters/sec
-      },
+      init() { this.target = null; this.speed = 0.95; },
       tick(time, dt) {
         if (!this.target) return;
         const p = this.el.object3D.position;
@@ -80,20 +100,18 @@
         const step = Math.min((dt / 1000) * this.speed, dist);
         p.x += (dx / dist) * step;
         p.z += (dz / dist) * step;
-        const yaw = Math.atan2(dx, dz) * (180 / Math.PI);
-        this.el.object3D.rotation.y = THREE.MathUtils.degToRad(yaw);
+        const yaw = Math.atan2(dx, dz);
+        this.el.object3D.rotation.y = yaw;
       },
-      moveTo(point) {
-        this.target = { x: point.x, z: point.z };
-      }
+      moveTo(point) { this.target = { x: point.x, z: point.z }; }
     });
 
     function localBrain(msg) {
       const m = msg.toLowerCase();
-      if (m.includes('hello') || m.includes('hey') || m.includes('hi')) return 'Hey Christopher — Saber here. I\'m with you.';
-      if (m.includes('move') || m.includes('walk')) return 'Point where you want me and click trigger — I\'ll walk there.';
-      if (m.includes('build') || m.includes('project')) return 'Let\'s ship something concrete. What\'s the smallest impressive version?';
-      return `Got it: "${msg}". Want me to propose the next move?`;
+      if (m.includes('hello') || m.includes('hey') || m.includes('hi')) return 'Hey Christopher — Saber here in the workshop.';
+      if (m.includes('move') || m.includes('walk')) return 'Point on the floor and click trigger — I will move there.';
+      if (m.includes('build') || m.includes('project')) return 'Lab mode active. Let\'s prototype something useful.';
+      return `Got it: "${msg}".`;
     }
 
     function speak(text){
@@ -106,10 +124,8 @@
 
     function respond(msg){
       const reply = localBrain(msg);
-      chatText.setAttribute('value', reply);
-      saber.setAttribute('animation__pulse', 'property: scale; dir: alternate; dur: 260; loop: 2; to: 1.05 1.05 1.05');
       speak(reply);
-      statusEl.textContent = 'Responded.';
+      statusEl.textContent = reply;
     }
 
     navPlane.addEventListener('click', (e) => {
@@ -117,15 +133,16 @@
       const p = e.detail.intersection.point;
       const mover = saber.components['saber-move'];
       if (mover) mover.moveTo(p);
+      targetMarker.setAttribute('position', `${p.x} 0.01 ${p.z}`);
+      targetMarker.setAttribute('visible', true);
       statusEl.textContent = `Moving to x:${p.x.toFixed(2)} z:${p.z.toFixed(2)}`;
-      chatText.setAttribute('value', 'On my way.');
     });
 
     document.getElementById('sendBtn').addEventListener('click', ()=>{
       const msg = userInput.value.trim();
       if(!msg) return;
       statusEl.textContent = 'Thinking...';
-      setTimeout(()=>respond(msg), 200);
+      setTimeout(()=>respond(msg), 160);
       userInput.value='';
     });
     userInput.addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('sendBtn').click(); });
@@ -142,7 +159,7 @@
 
     const modelEl = document.querySelector('[gltf-model]');
     if (modelEl) {
-      modelEl.addEventListener('model-loaded', ()=> statusEl.textContent = 'Model + controllers ready. Point and click to move Saber.');
+      modelEl.addEventListener('model-loaded', ()=> statusEl.textContent = 'Model + lab loaded. Point at floor to move Saber.');
       modelEl.addEventListener('model-error', ()=> statusEl.textContent = 'Model failed to load. Check connection and reload.');
     }
   </script>
