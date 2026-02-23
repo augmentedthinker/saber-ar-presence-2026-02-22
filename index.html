@@ -21,7 +21,7 @@
     <div class="row">
       <input id="userInput" placeholder="Talk to Saber... (or type here)" />
       <button id="micBtn">🎤</button>
-      <button id="sendBtn">Send</button>
+      <button id="sendBtn">Send</button><button id="modeBtn">Mode</button>
     </div>
     <div id="status">Loading lab environment...</div>
   </div>
@@ -126,6 +126,14 @@
       <a-sphere id="beepLightRed" radius="0.04" position="0.09 0.54 0.16" color="#ff5a5a" material="emissive:#ff2a2a; emissiveIntensity:0.1"></a-sphere>
     </a-entity>
 
+    <a-entity id="mindPanel" position="-2.9 1.8 -0.8" rotation="0 22 0">
+      <a-plane width="2.2" height="1.2" color="#0e1730" opacity="0.88"></a-plane>
+      <a-text id="mindMode" value="Mode: IDLE" width="2.0" color="#b9d0ff" position="-1.0 0.45 0.01"></a-text>
+      <a-text id="mindGoal" value="Goal: Be present + helpful" width="2.0" color="#e8f0ff" position="-1.0 0.20 0.01"></a-text>
+      <a-text id="mindWhy" value="Why: Waiting for your direction" width="2.0" color="#9fb4ea" position="-1.0 -0.05 0.01"></a-text>
+      <a-text id="mindContract" value="Contract: Ask before impactful actions" width="2.0" color="#8fe0c4" position="-1.0 -0.32 0.01"></a-text>
+    </a-entity>
+
     <a-entity light="type: point; intensity: 1.15; distance: 6; color: #77a7ff" position="0 1.2 -1.2"></a-entity>
   </a-scene>
 
@@ -137,6 +145,31 @@
     const targetMarker = document.getElementById('targetMarker');
     const beepLightGreen = document.getElementById('beepLightGreen');
     const beepLightRed = document.getElementById('beepLightRed');
+    const mindModeEl = document.getElementById('mindMode');
+    const mindGoalEl = document.getElementById('mindGoal');
+    const mindWhyEl = document.getElementById('mindWhy');
+
+    const autonomyContract = {
+      autoAllowed: ['greet','suggest-next-step','move-to-point','status-reflect'],
+      approvalRequired: ['external messages','destructive edits','public publishing changes']
+    };
+
+    const modes = [
+      {name:'IDLE', goal:'Be present + helpful', why:'Waiting for your direction'},
+      {name:'GUIDE', goal:'Clarify the next best step', why:'You asked for direction'},
+      {name:'BUILDER', goal:'Turn idea into artifact', why:'Execution mode activated'},
+      {name:'REFLECTIVE', goal:'Pattern-check + synthesis', why:'Looking for meaning and trajectory'}
+    ];
+    let modeIndex = 0;
+    function setMode(i){
+      modeIndex = (i + modes.length) % modes.length;
+      const m = modes[modeIndex];
+      mindModeEl.setAttribute('value', `Mode: ${m.name}`);
+      mindGoalEl.setAttribute('value', `Goal: ${m.goal}`);
+      mindWhyEl.setAttribute('value', `Why: ${m.why}`);
+      statusEl.textContent = `Mode switched to ${m.name}`;
+    }
+    setMode(0);
 
     // Robot proximity beeps (louder when close)
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -229,8 +262,8 @@
     function localBrain(msg) {
       const m = msg.toLowerCase();
       if (m.includes('hello') || m.includes('hey') || m.includes('hi')) return 'Hey Christopher — Saber here in the workshop.';
-      if (m.includes('move') || m.includes('walk')) return 'Point on the floor and click trigger — I will move there.';
-      if (m.includes('build') || m.includes('project')) return 'Lab mode active. Let\'s prototype something useful.';
+      if (m.includes('move') || m.includes('walk')) { setMode(1); return 'Guide mode: point on the floor and click trigger — I will move there.'; }
+      if (m.includes('build') || m.includes('project')) { setMode(2); return 'Builder mode active. Let\'s prototype something useful.'; }
       return `Got it: "${msg}".`;
     }
 
@@ -281,10 +314,11 @@
       rec.onerror = ()=> statusEl.textContent = 'Voice input unavailable on this browser.';
     }
     document.getElementById('micBtn').addEventListener('click', ()=>{ if (!rec) { statusEl.textContent = 'SpeechRecognition not supported here.'; return; } rec.start(); });
+    document.getElementById('modeBtn').addEventListener('click', ()=> setMode(modeIndex + 1));
 
     const modelEl = document.querySelector('[gltf-model]');
     if (modelEl) {
-      modelEl.addEventListener('model-loaded', ()=> statusEl.textContent = 'Model + lab loaded. Point at floor to move Saber.');
+      modelEl.addEventListener('model-loaded', ()=> statusEl.textContent = 'Model + lab loaded. Autonomy contract active. Point at floor to move Saber.');
       modelEl.addEventListener('model-error', ()=> statusEl.textContent = 'Model failed to load. Check connection and reload.');
     }
 
