@@ -44,30 +44,30 @@
     </a-entity>
 
     <!-- LAB ROOM -->
-    <a-box position="0 1.5 -3" depth="0.1" height="3" width="8" color="#6d7482"></a-box>
-    <a-box position="-4 1.5 1" depth="8" height="3" width="0.1" color="#636a78"></a-box>
-    <a-box position="4 1.5 1" depth="8" height="3" width="0.1" color="#636a78"></a-box>
-    <a-box position="0 3 1" depth="8" height="0.1" width="8" color="#818a98"></a-box>
+    <a-box position="0 3 -6" depth="0.1" height="6" width="16" color="#6d7482"></a-box>
+    <a-box position="-8 3 2" depth="16" height="6" width="0.1" color="#636a78"></a-box>
+    <a-box position="8 3 2" depth="16" height="6" width="0.1" color="#636a78"></a-box>
+    <a-box position="0 6 2" depth="16" height="0.1" width="16" color="#818a98"></a-box>
 
-    <a-plane id="navPlane" class="clickable" rotation="-90 0 0" position="0 0 0" width="8" height="8" color="#4e5562" material="roughness:0.95; metalness:0.1"></a-plane>
+    <a-plane id="navPlane" class="clickable" rotation="-90 0 0" position="0 0 0" width="16" height="16" color="#4e5562" material="roughness:0.95; metalness:0.1"></a-plane>
 
     <!-- windows -->
-    <a-plane position="-2.3 1.8 -2.94" width="1.6" height="1" color="#91b3d8" opacity="0.45" material="transparent:true"></a-plane>
-    <a-plane position="0 1.8 -2.94" width="1.6" height="1" color="#91b3d8" opacity="0.45" material="transparent:true"></a-plane>
-    <a-plane position="2.3 1.8 -2.94" width="1.6" height="1" color="#91b3d8" opacity="0.45" material="transparent:true"></a-plane>
+    <a-plane position="-4.6 2.6 -5.94" width="2.8" height="1.8" color="#91b3d8" opacity="0.45" material="transparent:true"></a-plane>
+    <a-plane position="0 2.6 -5.94" width="2.8" height="1.8" color="#91b3d8" opacity="0.45" material="transparent:true"></a-plane>
+    <a-plane position="4.6 2.6 -5.94" width="2.8" height="1.8" color="#91b3d8" opacity="0.45" material="transparent:true"></a-plane>
 
     <!-- benches -->
-    <a-box position="-2.7 0.45 -1.8" width="1.7" height="0.12" depth="0.6" color="#474d58"></a-box>
-    <a-box position="-2.7 0.2 -1.8" width="1.6" height="0.35" depth="0.5" color="#343a45"></a-box>
+    <a-box position="-5.2 0.45 -3.6" width="3.1" height="0.12" depth="0.9" color="#474d58"></a-box>
+    <a-box position="-5.2 0.2 -3.6" width="3.0" height="0.35" depth="0.8" color="#343a45"></a-box>
 
-    <a-box position="2.7 0.45 -1.8" width="1.7" height="0.12" depth="0.6" color="#474d58"></a-box>
-    <a-box position="2.7 0.2 -1.8" width="1.6" height="0.35" depth="0.5" color="#343a45"></a-box>
+    <a-box position="5.2 0.45 -3.6" width="3.1" height="0.12" depth="0.9" color="#474d58"></a-box>
+    <a-box position="5.2 0.2 -3.6" width="3.0" height="0.35" depth="0.8" color="#343a45"></a-box>
 
     <!-- simple lab props -->
-    <a-cylinder position="-2.35 0.62 -1.85" radius="0.06" height="0.18" color="#8ac4ff" opacity="0.75" material="transparent:true"></a-cylinder>
-    <a-cylinder position="-2.75 0.60 -1.7" radius="0.04" height="0.14" color="#a8ffda" opacity="0.75" material="transparent:true"></a-cylinder>
-    <a-torus position="2.4 0.6 -1.8" radius="0.12" radius-tubular="0.03" color="#9aa6ba" rotation="90 0 0"></a-torus>
-    <a-cylinder position="2.95 0.58 -1.9" radius="0.03" height="0.11" color="#7f8ea8"></a-cylinder>
+    <a-cylinder position="-5.0 0.62 -3.65" radius="0.06" height="0.18" color="#8ac4ff" opacity="0.75" material="transparent:true"></a-cylinder>
+    <a-cylinder position="-5.45 0.60 -3.45" radius="0.04" height="0.14" color="#a8ffda" opacity="0.75" material="transparent:true"></a-cylinder>
+    <a-torus position="4.9 0.6 -3.6" radius="0.12" radius-tubular="0.03" color="#9aa6ba" rotation="90 0 0"></a-torus>
+    <a-cylinder position="5.45 0.58 -3.75" radius="0.03" height="0.11" color="#7f8ea8"></a-cylinder>
 
     <!-- target marker -->
     <a-cylinder id="targetMarker" position="0 0.01 0" radius="0.13" height="0.01" color="#8db8ff" visible="false"></a-cylinder>
@@ -89,21 +89,52 @@
     const targetMarker = document.getElementById('targetMarker');
 
     AFRAME.registerComponent('saber-move', {
-      init() { this.target = null; this.speed = 0.95; },
+      init() {
+        this.target = null;
+        this.speed = 0.95;
+        this.roomHalf = 7.5;
+        // axis-aligned blockers (x,z center + half extents)
+        this.blockers = [
+          {x:-5.2, z:-3.6, hx:1.65, hz:0.55},
+          {x: 5.2, z:-3.6, hx:1.65, hz:0.55},
+          {x: 0.0, z:-6.0, hx:7.8, hz:0.20}, // back wall collision buffer
+          {x:-8.0, z: 2.0, hx:0.20, hz:7.8}, // left wall
+          {x: 8.0, z: 2.0, hx:0.20, hz:7.8}  // right wall
+        ];
+      },
+      isBlocked(x,z){
+        if (x < -this.roomHalf || x > this.roomHalf || z < -this.roomHalf || z > this.roomHalf) return true;
+        for (const b of this.blockers){
+          if (Math.abs(x - b.x) <= b.hx && Math.abs(z - b.z) <= b.hz) return true;
+        }
+        return false;
+      },
       tick(time, dt) {
         if (!this.target) return;
         const p = this.el.object3D.position;
         const t = this.target;
         const dx = t.x - p.x, dz = t.z - p.z;
         const dist = Math.hypot(dx, dz);
-        if (dist < 0.03) { this.target = null; return; }
+        if (dist < 0.04) { this.target = null; return; }
         const step = Math.min((dt / 1000) * this.speed, dist);
-        p.x += (dx / dist) * step;
-        p.z += (dz / dist) * step;
+        const nx = p.x + (dx / dist) * step;
+        const nz = p.z + (dz / dist) * step;
+
+        if (!this.isBlocked(nx, nz)) {
+          p.x = nx; p.z = nz;
+        } else {
+          this.target = null;
+          return;
+        }
+
         const yaw = Math.atan2(dx, dz);
         this.el.object3D.rotation.y = yaw;
       },
-      moveTo(point) { this.target = { x: point.x, z: point.z }; }
+      moveTo(point) {
+        if (this.isBlocked(point.x, point.z)) return false;
+        this.target = { x: point.x, z: point.z };
+        return true;
+      }
     });
 
     function localBrain(msg) {
@@ -132,7 +163,11 @@
       if (!e.detail || !e.detail.intersection) return;
       const p = e.detail.intersection.point;
       const mover = saber.components['saber-move'];
-      if (mover) mover.moveTo(p);
+      const ok = mover ? mover.moveTo(p) : false;
+      if (!ok) {
+        statusEl.textContent = 'Blocked path (wall/table). Pick a clearer floor spot.';
+        return;
+      }
       targetMarker.setAttribute('position', `${p.x} 0.01 ${p.z}`);
       targetMarker.setAttribute('visible', true);
       statusEl.textContent = `Moving to x:${p.x.toFixed(2)} z:${p.z.toFixed(2)}`;
