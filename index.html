@@ -120,6 +120,10 @@
       <a-entity gltf-model="#robotModel" scale="0.28 0.28 0.28" position="0 0 0" rotation="0 0 0" animation-mixer="clip: Idle; loop: repeat"></a-entity>
       <a-cylinder radius="0.28" height="0.03" color="#20305f" position="0 -0.02 0" material="emissive:#2d4ca0; emissiveIntensity:0.4; metalness:0.5; roughness:0.3"></a-cylinder>
       <a-ring radius-inner="0.33" radius-outer="0.36" rotation="-90 0 0" position="0 -0.018 0" color="#6ea1ff" material="emissive:#4f83ff; emissiveIntensity:0.9; transparent:true; opacity:.85" animation="property: rotation; to: -90 360 0; loop: true; dur: 7000; easing: linear"></a-ring>
+
+      <!-- Beep-sync light indicators -->
+      <a-sphere id="beepLightGreen" radius="0.05" position="0 0.58 0.18" color="#45ff8f" material="emissive:#1eff73; emissiveIntensity:0.15"></a-sphere>
+      <a-sphere id="beepLightRed" radius="0.04" position="0.09 0.54 0.16" color="#ff5a5a" material="emissive:#ff2a2a; emissiveIntensity:0.1"></a-sphere>
     </a-entity>
 
     <a-entity light="type: point; intensity: 1.15; distance: 6; color: #77a7ff" position="0 1.2 -1.2"></a-entity>
@@ -131,9 +135,25 @@
     const saber = document.getElementById('saber');
     const navPlane = document.getElementById('navPlane');
     const targetMarker = document.getElementById('targetMarker');
+    const beepLightGreen = document.getElementById('beepLightGreen');
+    const beepLightRed = document.getElementById('beepLightRed');
 
     // Robot proximity beeps (louder when close)
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function flashBeepLights(dist){
+      const nearFactor = Math.max(0, Math.min(1, 1 - (dist / 6)));
+      const greenPeak = 0.7 + nearFactor * 1.7;
+      const redPeak = 0.3 + nearFactor * 1.2;
+
+      beepLightGreen.setAttribute('material', `emissive:#1eff73; emissiveIntensity:${greenPeak.toFixed(2)}`);
+      beepLightRed.setAttribute('material', `emissive:#ff2a2a; emissiveIntensity:${redPeak.toFixed(2)}`);
+
+      setTimeout(()=>{
+        beepLightGreen.setAttribute('material', 'emissive:#1eff73; emissiveIntensity:0.15');
+        beepLightRed.setAttribute('material', 'emissive:#ff2a2a; emissiveIntensity:0.10');
+      }, 130);
+    }
+
     function robotBeep(){
       const cam = document.querySelector('#rig').object3D.position;
       const rb = saber.object3D.position;
@@ -150,6 +170,8 @@
       gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.14);
       osc.connect(gain); gain.connect(audioCtx.destination);
       osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+
+      flashBeepLights(dist);
     }
 
     AFRAME.registerComponent('saber-move', {
