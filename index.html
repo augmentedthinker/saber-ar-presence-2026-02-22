@@ -21,7 +21,7 @@
     <div class="row">
       <input id="userInput" placeholder="Talk to Saber... (or type here)" />
       <button id="micBtn">🎤</button>
-      <button id="sendBtn">Send</button><button id="modeBtn">Mode</button>
+      <button id="sendBtn">Send</button><button id="modeBtn">Mode</button><button id="memBtn">Memory</button>
     </div>
     <div id="status">Loading lab environment...</div>
   </div>
@@ -134,6 +134,16 @@
       <a-text id="mindContract" value="Contract: Ask before impactful actions" width="2.0" color="#8fe0c4" position="-1.0 -0.32 0.01"></a-text>
     </a-entity>
 
+    <!-- Step 6: bounded memory cue cards -->
+    <a-entity id="memoryPanel" position="2.9 1.9 -0.8" rotation="0 -22 0">
+      <a-plane width="2.4" height="1.45" color="#111a33" opacity="0.9"></a-plane>
+      <a-text value="Working Memory" width="2.1" color="#c6d8ff" position="-1.08 0.58 0.01"></a-text>
+      <a-text id="memCurrent" value="Current: XR Presence Lab" width="2.1" color="#eaf1ff" position="-1.08 0.32 0.01"></a-text>
+      <a-text id="memLoop" value="Open loop: robot realism + interaction" width="2.1" color="#b8c9f3" position="-1.08 0.08 0.01"></a-text>
+      <a-text id="memNext" value="Next: validate controller UX + audio" width="2.1" color="#9fe3c9" position="-1.08 -0.16 0.01"></a-text>
+      <a-text id="memGuard" value="Guardrail: ask before external actions" width="2.1" color="#98b6ea" position="-1.08 -0.40 0.01"></a-text>
+    </a-entity>
+
     <a-entity light="type: point; intensity: 1.15; distance: 6; color: #77a7ff" position="0 1.2 -1.2"></a-entity>
   </a-scene>
 
@@ -148,6 +158,10 @@
     const mindModeEl = document.getElementById('mindMode');
     const mindGoalEl = document.getElementById('mindGoal');
     const mindWhyEl = document.getElementById('mindWhy');
+    const memCurrentEl = document.getElementById('memCurrent');
+    const memLoopEl = document.getElementById('memLoop');
+    const memNextEl = document.getElementById('memNext');
+    const memoryPanel = document.getElementById('memoryPanel');
 
     const autonomyContract = {
       autoAllowed: ['greet','suggest-next-step','move-to-point','status-reflect'],
@@ -168,7 +182,22 @@
       mindGoalEl.setAttribute('value', `Goal: ${m.goal}`);
       mindWhyEl.setAttribute('value', `Why: ${m.why}`);
       statusEl.textContent = `Mode switched to ${m.name}`;
+      updateMemoryFromMode(m.name);
     }
+
+    function updateMemory(current, loop, next){
+      if (current) memCurrentEl.setAttribute('value', `Current: ${current}`);
+      if (loop) memLoopEl.setAttribute('value', `Open loop: ${loop}`);
+      if (next) memNextEl.setAttribute('value', `Next: ${next}`);
+    }
+
+    function updateMemoryFromMode(modeName){
+      if (modeName === 'GUIDE') updateMemory('Navigation + interaction guidance','controller pointer reliability','confirm walk targets feel natural');
+      if (modeName === 'BUILDER') updateMemory('XR environment iteration','robot realism + immersion','ship next visual/behavior upgrade');
+      if (modeName === 'REFLECTIVE') updateMemory('Session synthesis','prioritize what matters now','distill one decisive next step');
+      if (modeName === 'IDLE') updateMemory('Standby presence','waiting for user direction','offer one useful suggestion when asked');
+    }
+
     setMode(0);
 
     // Robot proximity beeps (louder when close)
@@ -274,6 +303,7 @@
       if (m.includes('move') || m.includes('walk')) return 'Guide mode: point on the floor and click trigger — I will move there.';
       if (m.includes('build') || m.includes('project')) return 'Builder mode active. Let\'s prototype something useful.';
       if (m.includes('reflect') || m.includes('pattern')) return 'Reflective mode active. I can summarize what is really happening and what matters next.';
+      if (m.includes('memory') || m.includes('remember')) { updateMemory('Live conversation context','capturing key intent in-session','convert into actionable next move'); return 'Memory cues updated for this conversation.'; }
       return `Got it: "${msg}".`;
     }
 
@@ -325,6 +355,11 @@
     }
     document.getElementById('micBtn').addEventListener('click', ()=>{ if (!rec) { statusEl.textContent = 'SpeechRecognition not supported here.'; return; } rec.start(); });
     document.getElementById('modeBtn').addEventListener('click', ()=> setMode(modeIndex + 1));
+    document.getElementById('memBtn').addEventListener('click', ()=>{
+      const visible = memoryPanel.getAttribute('visible');
+      memoryPanel.setAttribute('visible', !visible);
+      statusEl.textContent = `Memory panel ${visible ? 'hidden' : 'shown'}.`;
+    });
 
     const modelEl = document.querySelector('[gltf-model]');
     if (modelEl) {
