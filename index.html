@@ -7,11 +7,7 @@
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
   <style>
     html, body { margin:0; height:100%; overflow:hidden; font-family: Inter, system-ui, sans-serif; background:#05070f; }
-    .hud {
-      position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom,0px));
-      z-index: 20; background: rgba(12,18,34,.78); border:1px solid rgba(112,150,255,.45); border-radius: 14px;
-      backdrop-filter: blur(8px); padding: 10px;
-    }
+    .hud { position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom,0px)); z-index: 20; background: rgba(12,18,34,.78); border:1px solid rgba(112,150,255,.45); border-radius: 14px; backdrop-filter: blur(8px); padding: 10px; }
     .row { display:flex; gap:8px; align-items:center; }
     input { flex:1; background:#111a33; color:#e9efff; border:1px solid #3f5fc2; border-radius:10px; padding:10px; font-size:16px; }
     button { background:#1a2d66; color:#fff; border:1px solid #6d90ff; border-radius:10px; padding:10px 12px; font-weight:700; }
@@ -20,21 +16,19 @@
   </style>
 </head>
 <body>
-  <div class="hint">Quest: open in Browser → Enter AR/VR. v1 uses local conversational brain.</div>
+  <div class="hint">Quest: trigger/right-click pointer to set target. Saber walks to where you point.</div>
   <div class="hud">
     <div class="row">
       <input id="userInput" placeholder="Talk to Saber... (or type here)" />
       <button id="micBtn">🎤</button>
       <button id="sendBtn">Send</button>
     </div>
-    <div id="status">Ready. Loading upgraded robot model...</div>
+    <div id="status">Loading model + controllers...</div>
   </div>
 
-  <a-scene
-    renderer="colorManagement:true; physicallyCorrectLights:true; alpha:true"
-    xr-mode-ui="enabled: true"
-    webxr="optionalFeatures: local-floor, bounded-floor, hit-test, dom-overlay; overlayElement: body"
-    background="transparent: true">
+  <a-scene renderer="colorManagement:true; physicallyCorrectLights:true; alpha:true" xr-mode-ui="enabled: true"
+           webxr="optionalFeatures: local-floor, bounded-floor, hit-test, dom-overlay; overlayElement: body"
+           background="transparent: true">
 
     <a-assets>
       <a-asset-item id="robotModel" src="https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/gltf/RobotExpressive/RobotExpressive.glb"></a-asset-item>
@@ -45,32 +39,23 @@
 
     <a-entity id="rig" position="0 1.6 0">
       <a-camera wasd-controls-enabled="false"></a-camera>
+
+      <a-entity id="leftHand" laser-controls="hand: left" raycaster="objects: .clickable" line="color: #7fc0ff; opacity: 0.9"></a-entity>
+      <a-entity id="rightHand" laser-controls="hand: right" raycaster="objects: .clickable" line="color: #d2a3ff; opacity: 0.9"></a-entity>
     </a-entity>
 
-    <a-entity id="saber" position="0 0 -2.1"
-      animation__bob="property: position; dir: alternate; loop: true; dur: 2200; to: 0 0.07 -2.1"
-      animation__turn="property: rotation; dir: alternate; loop: true; dur: 4200; to: 0 8 0">
+    <a-plane id="navPlane" class="clickable" rotation="-90 0 0" position="0 0 -2" width="40" height="40" color="#0b1230" opacity="0.18"></a-plane>
 
-      <a-entity gltf-model="#robotModel" scale="0.28 0.28 0.28" position="0 0 0" rotation="0 0 0"
-        animation-mixer="clip: Idle; loop: repeat"></a-entity>
-
-      <a-cylinder radius="0.28" height="0.03" color="#20305f" position="0 -0.02 0"
-        material="emissive:#2d4ca0; emissiveIntensity:0.4; metalness:0.5; roughness:0.3"></a-cylinder>
-
-      <a-ring radius-inner="0.33" radius-outer="0.36" rotation="-90 0 0" position="0 -0.018 0"
-        color="#6ea1ff" material="emissive:#4f83ff; emissiveIntensity:0.9; transparent:true; opacity:.85"
-        animation="property: rotation; to: -90 360 0; loop: true; dur: 7000; easing: linear"></a-ring>
-
-      <a-plane id="chatPanel" width="1.6" height="0.5" color="#101a34" opacity="0.82" position="0 1.25 0"
-        material="shader: flat; transparent: true">
-        <a-text id="chatText" value="Saber online. Say hi." color="#e6eeff" width="1.45" align="center" position="0 0 0.01"></a-text>
+    <a-entity id="saber" position="0 0 -2.1" saber-move>
+      <a-entity gltf-model="#robotModel" scale="0.28 0.28 0.28" position="0 0 0" rotation="0 0 0" animation-mixer="clip: Idle; loop: repeat"></a-entity>
+      <a-cylinder radius="0.28" height="0.03" color="#20305f" position="0 -0.02 0" material="emissive:#2d4ca0; emissiveIntensity:0.4; metalness:0.5; roughness:0.3"></a-cylinder>
+      <a-ring radius-inner="0.33" radius-outer="0.36" rotation="-90 0 0" position="0 -0.018 0" color="#6ea1ff" material="emissive:#4f83ff; emissiveIntensity:0.9; transparent:true; opacity:.85" animation="property: rotation; to: -90 360 0; loop: true; dur: 7000; easing: linear"></a-ring>
+      <a-plane id="chatPanel" width="1.6" height="0.5" color="#101a34" opacity="0.82" position="0 1.25 0" material="shader: flat; transparent: true">
+        <a-text id="chatText" value="Saber online. Point to move me." color="#e6eeff" width="1.45" align="center" position="0 0 0.01"></a-text>
       </a-plane>
     </a-entity>
 
     <a-entity light="type: point; intensity: 1.1; distance: 6; color: #77a7ff" position="0 1.2 -2.1"></a-entity>
-
-
-    <!-- floor hidden for passthrough-style AR focus -->
   </a-scene>
 
   <script>
@@ -78,14 +63,37 @@
     const userInput = document.getElementById('userInput');
     const chatText = document.getElementById('chatText');
     const saber = document.getElementById('saber');
+    const navPlane = document.getElementById('navPlane');
+
+    AFRAME.registerComponent('saber-move', {
+      init() {
+        this.target = null;
+        this.speed = 0.95; // meters/sec
+      },
+      tick(time, dt) {
+        if (!this.target) return;
+        const p = this.el.object3D.position;
+        const t = this.target;
+        const dx = t.x - p.x, dz = t.z - p.z;
+        const dist = Math.hypot(dx, dz);
+        if (dist < 0.03) { this.target = null; return; }
+        const step = Math.min((dt / 1000) * this.speed, dist);
+        p.x += (dx / dist) * step;
+        p.z += (dz / dist) * step;
+        const yaw = Math.atan2(dx, dz) * (180 / Math.PI);
+        this.el.object3D.rotation.y = THREE.MathUtils.degToRad(yaw);
+      },
+      moveTo(point) {
+        this.target = { x: point.x, z: point.z };
+      }
+    });
 
     function localBrain(msg) {
       const m = msg.toLowerCase();
       if (m.includes('hello') || m.includes('hey') || m.includes('hi')) return 'Hey Christopher — Saber here. I\'m with you.';
+      if (m.includes('move') || m.includes('walk')) return 'Point where you want me and click trigger — I\'ll walk there.';
       if (m.includes('build') || m.includes('project')) return 'Let\'s ship something concrete. What\'s the smallest impressive version?';
-      if (m.includes('focus') || m.includes('stuck')) return 'Name one outcome for the next 30 minutes. I\'ll help you hold the line.';
-      if (m.includes('vr') || m.includes('ar')) return 'I love this medium. We can add gestures, spatial UI, and voice commands next.';
-      return `Got it: "${msg}". I\'m here — want me to propose the next move?`;
+      return `Got it: "${msg}". Want me to propose the next move?`;
     }
 
     function speak(text){
@@ -104,6 +112,15 @@
       statusEl.textContent = 'Responded.';
     }
 
+    navPlane.addEventListener('click', (e) => {
+      if (!e.detail || !e.detail.intersection) return;
+      const p = e.detail.intersection.point;
+      const mover = saber.components['saber-move'];
+      if (mover) mover.moveTo(p);
+      statusEl.textContent = `Moving to x:${p.x.toFixed(2)} z:${p.z.toFixed(2)}`;
+      chatText.setAttribute('value', 'On my way.');
+    });
+
     document.getElementById('sendBtn').addEventListener('click', ()=>{
       const msg = userInput.value.trim();
       if(!msg) return;
@@ -111,36 +128,23 @@
       setTimeout(()=>respond(msg), 200);
       userInput.value='';
     });
-
     userInput.addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('sendBtn').click(); });
 
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     let rec = null;
     if (SR) {
-      rec = new SR();
-      rec.lang = 'en-US';
-      rec.interimResults = false;
-      rec.maxAlternatives = 1;
+      rec = new SR(); rec.lang = 'en-US'; rec.interimResults = false; rec.maxAlternatives = 1;
       rec.onstart = ()=> statusEl.textContent = 'Listening...';
-      rec.onresult = (e)=> {
-        const t = e.results[0][0].transcript;
-        userInput.value = t;
-        statusEl.textContent = `Heard: ${t}`;
-        respond(t);
-      };
+      rec.onresult = (e)=> { const t = e.results[0][0].transcript; userInput.value = t; respond(t); };
       rec.onerror = ()=> statusEl.textContent = 'Voice input unavailable on this browser.';
     }
+    document.getElementById('micBtn').addEventListener('click', ()=>{ if (!rec) { statusEl.textContent = 'SpeechRecognition not supported here.'; return; } rec.start(); });
 
-    
     const modelEl = document.querySelector('[gltf-model]');
     if (modelEl) {
-      modelEl.addEventListener('model-loaded', ()=> statusEl.textContent = 'Model loaded. Say hello to Saber.');
+      modelEl.addEventListener('model-loaded', ()=> statusEl.textContent = 'Model + controllers ready. Point and click to move Saber.');
       modelEl.addEventListener('model-error', ()=> statusEl.textContent = 'Model failed to load. Check connection and reload.');
     }
-document.getElementById('micBtn').addEventListener('click', ()=>{
-      if (!rec) { statusEl.textContent = 'SpeechRecognition not supported here.'; return; }
-      rec.start();
-    });
   </script>
 </body>
 </html>
